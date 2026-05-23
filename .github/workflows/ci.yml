@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    paths:
+      - 'in_app_location_kit/**'
+  pull_request:
+    paths:
+      - 'in_app_location_kit/**'
+
+defaults:
+  run:
+    working-directory: in_app_location_kit
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter pub get
+      - run: dart analyze
+      - run: flutter test
