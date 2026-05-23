@@ -4,6 +4,8 @@ import 'package:in_app_location_kit/in_app_location_kit.dart';
 import 'package:in_app_location_kit/maps.dart';
 import 'package:in_app_location_kit/riverpod.dart';
 
+import 'maps_env.dart';
+
 void main() {
   runApp(
     const ProviderScope(
@@ -38,6 +40,38 @@ class DemoHomePage extends ConsumerStatefulWidget {
 class _DemoHomePageState extends ConsumerState<DemoHomePage> {
   LocationFixResult? _last;
 
+  void _openMapPicker() {
+    if (!exampleMapsConfigured) {
+      showDialog<void>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Maps API key required'),
+          content: Text(exampleMapsSetupSteps),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => InAppLocationMapScreen(
+          googleMapsApiKey: exampleMapsApiKey,
+          mapsSetupHint: exampleMapsSetupSteps,
+          onConfirm: (r) {
+            setState(() => _last = r);
+            Navigator.pop(context);
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cached = ref.watch(cachedLocationProvider);
@@ -47,6 +81,55 @@ class _DemoHomePageState extends ConsumerState<DemoHomePage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          if (!exampleMapsConfigured)
+            Card(
+              color: Colors.amber.shade50,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Map picker needs Google Maps API key',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.amber.shade900,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      exampleMapsBannerMessage,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontFamily: 'monospace',
+                        color: Colors.amber.shade900,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: () {
+                        showDialog<void>(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text('Full setup steps'),
+                            content: SingleChildScrollView(
+                              child: Text(exampleMapsSetupSteps),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx),
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      child: const Text('View all steps'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           cached.when(
             data: (c) => Text(
               c == null
@@ -122,19 +205,12 @@ class _DemoHomePageState extends ConsumerState<DemoHomePage> {
           ),
           const SizedBox(height: 12),
           OutlinedButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => InAppLocationMapScreen(
-                    onConfirm: (r) {
-                      setState(() => _last = r);
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
-              );
-            },
-            child: const Text('Map picker'),
+            onPressed: _openMapPicker,
+            child: Text(
+              exampleMapsConfigured
+                  ? 'Map picker'
+                  : 'Map picker (needs API key)',
+            ),
           ),
         ],
       ),

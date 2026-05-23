@@ -11,6 +11,7 @@ dependencies:
   flutter_riverpod: ^2.6.1
   in_app_location_kit:
     path: ../
+    # After publish: in_app_location_kit: ^0.1.0
 
 dev_dependencies:
   flutter_test:
