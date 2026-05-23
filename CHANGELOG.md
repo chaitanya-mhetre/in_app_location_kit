@@ -1,6 +1,6 @@
 ## 0.1.1
 
-* Document Google Maps API key requirement prominently in README and `docs/GOOGLE_MAPS_SETUP.md`.
+* Document Google Maps API key requirement prominently in README and `doc/GOOGLE_MAPS_SETUP.md`.
 * Example app: setup banner, dialog with `flutter run --dart-define=MAPS_API_KEY=...` instructions.
 * `InAppLocationMapScreen`: placeholder when `googleMapsApiKey` is missing.
 

@@ -114,8 +114,8 @@ If `googleMapsApiKey` is empty, the package shows **“Google Maps not configure
 ```bash
 cd example
 cp android/local.properties.example android/local.properties
-# Edit: MAPS_API_KEY=AIzaSy...
-flutter run --dart-define=MAPS_API_KEY=AIzaSy...
+# Edit: MAPS_API_KEY=YOUR_KEY_HERE
+flutter run --dart-define=MAPS_API_KEY=YOUR_KEY_HERE
 ```
 
 **Both** must use the **same** key:

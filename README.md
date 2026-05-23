@@ -85,7 +85,7 @@ cp android/local.properties.example android/local.properties
 Replace the placeholder with your real key:
 
 ```properties
-MAPS_API_KEY=AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+MAPS_API_KEY=YOUR_KEY_HERE
 ```
 
 **Step 3 — Run with the same key in the command**
@@ -99,12 +99,12 @@ flutter run --dart-define=MAPS_API_KEY=YOUR_KEY
 Example:
 
 ```bash
-flutter run --dart-define=MAPS_API_KEY=AIzaSyAbCdEfGhIjKlMnOpQrStUvWxYz1234567
+flutter run --dart-define=MAPS_API_KEY=YOUR_KEY_HERE
 ```
 
 **Step 4 — Pick your device** when prompted, then tap **Map picker** on the home screen.
 
-More detail: [example/README.md](example/README.md) and [docs/GOOGLE_MAPS_SETUP.md](docs/GOOGLE_MAPS_SETUP.md).
+More detail: [example/README.md](example/README.md) and [doc/GOOGLE_MAPS_SETUP.md](doc/GOOGLE_MAPS_SETUP.md).
 
 ---
 

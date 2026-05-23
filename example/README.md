@@ -56,7 +56,7 @@ The app will **not** crash if you follow the steps here (or if you skip Map pick
 4. Enable **Maps SDK for Android** (and **Maps SDK for iOS** if you test on iPhone):
    - **APIs & Services** → **Library** → search “Maps SDK for Android” → **Enable**.
 
-Copy the key (starts with `AIzaSy...`).
+Copy the key from Google Cloud Console (Credentials).
 
 #### 2. Add key to Android (`local.properties`)
 
@@ -68,7 +68,7 @@ cp android/local.properties.example android/local.properties
 Open `android/local.properties` and set:
 
 ```properties
-MAPS_API_KEY=AIzaSy_PASTE_YOUR_REAL_KEY_HERE
+MAPS_API_KEY=YOUR_KEY_HERE
 ```
 
 > `local.properties` is gitignored — never commit your real key.
@@ -80,7 +80,7 @@ The native Android build reads `local.properties`. Dart needs the key too for th
 **Copy-paste template** (replace only the key part):
 
 ```bash
-flutter run --dart-define=MAPS_API_KEY=AIzaSy_PASTE_YOUR_REAL_KEY_HERE
+flutter run --dart-define=MAPS_API_KEY=YOUR_KEY_HERE
 ```
 
 **Full example** (one line):
@@ -88,7 +88,7 @@ flutter run --dart-define=MAPS_API_KEY=AIzaSy_PASTE_YOUR_REAL_KEY_HERE
 ```bash
 cd ~/path/to/in_app_location_kit/example
 flutter pub get
-flutter run --dart-define=MAPS_API_KEY=AIzaSyAbCdEfGhIjKlMnOpQrStUvWxYz1234567
+flutter run --dart-define=MAPS_API_KEY=YOUR_KEY_HERE
 ```
 
 #### 4. Test Map picker
@@ -147,7 +147,7 @@ flutter run -d DEVICE_ID --dart-define=MAPS_API_KEY=YOUR_KEY
 Example:
 
 ```bash
-flutter run -d 192.168.0.153:44281 --dart-define=MAPS_API_KEY=AIzaSy...
+flutter run -d 192.168.0.153:44281 --dart-define=MAPS_API_KEY=YOUR_KEY_HERE
 ```
 
 ---
@@ -155,4 +155,4 @@ flutter run -d 192.168.0.153:44281 --dart-define=MAPS_API_KEY=AIzaSy...
 ## More documentation
 
 - Package README: [../README.md](../README.md)
-- Detailed Maps guide: [../docs/GOOGLE_MAPS_SETUP.md](../docs/GOOGLE_MAPS_SETUP.md)
+- Detailed Maps guide: [../doc/GOOGLE_MAPS_SETUP.md](../doc/GOOGLE_MAPS_SETUP.md)

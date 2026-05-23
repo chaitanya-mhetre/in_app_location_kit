@@ -30,7 +30,7 @@ STEP 3 — Run the app (use YOUR real key, not $placeholder)
 flutter run --dart-define=MAPS_API_KEY=$placeholder
 
 Example:
-flutter run --dart-define=MAPS_API_KEY=AIzaSyAbCdEfGhIjKlMnOpQrStUvWxYz
+flutter run --dart-define=MAPS_API_KEY=YOUR_KEY_HERE
 
 Other buttons (GPS / permission) work with plain:
 flutter run
