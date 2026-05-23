@@ -1,0 +1,15 @@
+# Local build artifacts (must not ship to pub.dev)
+build/
+.dart_tool/
+
+# CI / editor
+.github/
+.idea/
+.vscode/
+
+# Git
+.git/
+.gitignore
+
+# Docs only for maintainers
+PUBLISHING.md

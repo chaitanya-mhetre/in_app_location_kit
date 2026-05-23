@@ -2,15 +2,9 @@ name: CI
 
 on:
   push:
-    paths:
-      - 'in_app_location_kit/**'
+    branches: [main, master]
   pull_request:
-    paths:
-      - 'in_app_location_kit/**'
-
-defaults:
-  run:
-    working-directory: in_app_location_kit
+    branches: [main, master]
 
 jobs:
   analyze:

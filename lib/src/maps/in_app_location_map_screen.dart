@@ -8,8 +8,13 @@ import '../models/location_fix_result.dart';
 import '../models/location_flow_result.dart';
 import '../service/in_app_location_kit.dart';
 import '../service/location_kit_base.dart';
+import 'maps_availability.dart';
+import 'maps_unavailable_placeholder.dart';
 
 /// Map pin picker (Khaugalli SetLocationScreen-style).
+///
+/// Set [mapsEnabled] to `false` (or omit [googleMapsApiKey]) when the host app
+/// has not configured a native Google Maps API key — avoids a hard crash.
 class InAppLocationMapScreen extends StatefulWidget {
   const InAppLocationMapScreen({
     super.key,
@@ -19,6 +24,9 @@ class InAppLocationMapScreen extends StatefulWidget {
     this.strings = const InAppLocationStrings(),
     this.theme = const InAppLocationTheme(),
     this.appBarTitle = 'Set location',
+    this.googleMapsApiKey,
+    this.mapsEnabled = true,
+    this.mapsSetupHint,
   });
 
   final void Function(LocationFixResult result) onConfirm;
@@ -27,6 +35,21 @@ class InAppLocationMapScreen extends StatefulWidget {
   final InAppLocationStrings strings;
   final InAppLocationTheme theme;
   final String appBarTitle;
+
+  /// If set, [mapsEnabled] is derived from [MapsAvailability.isConfigured].
+  final String? googleMapsApiKey;
+
+  /// When `false`, shows [MapsUnavailablePlaceholder] instead of [GoogleMap].
+  final bool mapsEnabled;
+  final String? mapsSetupHint;
+
+  bool get _shouldShowMap {
+    if (!mapsEnabled) return false;
+    if (googleMapsApiKey != null) {
+      return MapsAvailability.isConfigured(googleMapsApiKey!);
+    }
+    return mapsEnabled;
+  }
 
   @override
   State<InAppLocationMapScreen> createState() => _InAppLocationMapScreenState();
@@ -41,9 +64,12 @@ class _InAppLocationMapScreenState extends State<InAppLocationMapScreen> {
   @override
   void initState() {
     super.initState();
-    _position = widget.initialPosition ??
-        const LatLng(18.9389, 72.8258);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadInitial());
+    _position = widget.initialPosition ?? const LatLng(18.9389, 72.8258);
+    if (widget._shouldShowMap) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _loadInitial());
+    } else {
+      _loading = false;
+    }
   }
 
   Future<void> _loadInitial() async {
@@ -92,6 +118,15 @@ class _InAppLocationMapScreenState extends State<InAppLocationMapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (!widget._shouldShowMap) {
+      return MapsUnavailablePlaceholder(
+        strings: widget.strings,
+        theme: widget.theme,
+        appBarTitle: widget.appBarTitle,
+        setupHint: widget.mapsSetupHint,
+      );
+    }
+
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(widget.appBarTitle)),
@@ -106,12 +141,14 @@ class _InAppLocationMapScreenState extends State<InAppLocationMapScreen> {
             onCameraIdle: () async {
               final c = _mapController;
               if (c == null) return;
-              final region = await c.getVisibleRegion();
-              final center = LatLng(
-                (region.northeast.latitude + region.southwest.latitude) / 2,
-                (region.northeast.longitude + region.southwest.longitude) / 2,
-              );
-              _onCameraIdle(center);
+              try {
+                final region = await c.getVisibleRegion();
+                final center = LatLng(
+                  (region.northeast.latitude + region.southwest.latitude) / 2,
+                  (region.northeast.longitude + region.southwest.longitude) / 2,
+                );
+                _onCameraIdle(center);
+              } catch (_) {}
             },
             myLocationEnabled: true,
             myLocationButtonEnabled: true,

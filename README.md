@@ -1,8 +1,29 @@
 # in_app_location_kit
 
+[![pub package](https://img.shields.io/pub/v/in_app_location_kit.svg)](https://pub.dev/packages/in_app_location_kit)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 Turn on **device GPS inside the app**, request **runtime permission**, fetch coordinates, and optionally **reverse-geocode** — with fully customizable UI, storage, maps, and Riverpod helpers.
 
-Extracted from the Khaugalli delivery-location flow (`location` + `geolocator` + `geocoding`).
+---
+
+## Important: Google Maps is optional (but required for the map screen)
+
+| Feature | Location permission | Google Maps API key |
+|--------|---------------------|---------------------|
+| `InAppLocationButton`, permission screen, GPS loading, bootstrap | Yes | **No** |
+| `InAppLocationMapScreen` (map pin picker) | Yes | **Yes** |
+
+If you open the **map picker** without a Maps API key, Android/iOS can crash with:
+
+```text
+PlatformException: API key not found.
+Check that <meta-data android:name="com.google.android.geo.API_KEY" .../>
+```
+
+That is **not** a bug in this package — Google Maps must be configured in **your** app. See [Google Maps setup](#google-maps-setup-required-only-for-map-picker) below.
+
+---
 
 ## Features
 
@@ -10,21 +31,86 @@ Extracted from the Khaugalli delivery-location flow (`location` + `geolocator` +
 - Permission via `geolocator` and/or `permission_handler` (`PermissionBackend`)
 - `InAppLocationKit` service with step stream for custom UI
 - Widgets: button, permission screen, loading screen, guard, flow builder
-- `SharedPreferencesLocationStorage` (Khaugalli legacy keys supported)
+- `SharedPreferencesLocationStorage` (optional Khaugalli legacy keys)
 - `LocationBootstrap` for splash-style routing
-- `InAppLocationMapScreen` (Google Map pin)
+- `InAppLocationMapScreen` (Google Map pin) — **needs Maps API key**
 - `FakeInAppLocationKit` for tests
-- Riverpod providers (`lib/riverpod.dart`)
+- Riverpod providers (`package:in_app_location_kit/riverpod.dart`)
+
+---
 
 ## Install
 
 ```yaml
 dependencies:
-  in_app_location_kit:
-    path: ../in_app_location_kit   # or git / pub.dev when published
+  in_app_location_kit: ^0.1.1
 ```
 
-## Android setup (host app)
+```bash
+flutter pub get
+```
+
+---
+
+## Run the example app
+
+Clone the repo, then choose **one** of these:
+
+### Option 1 — GPS / permission only (no Google Maps key)
+
+Works for: **Use current location**, **Permission screen**, **Loading screen**, **Run bootstrap**.
+
+```bash
+git clone https://github.com/chaitanya-mhetre/in_app_location_kit.git
+cd in_app_location_kit/example
+flutter pub get
+flutter run
+```
+
+Do **not** tap **Map picker** without completing Option 2.
+
+### Option 2 — Full demo including Map picker
+
+You need a [Google Cloud](https://console.cloud.google.com/) API key with **Maps SDK for Android** (and iOS if you test on iPhone).
+
+**Step 1 — Create `local.properties`**
+
+```bash
+cd in_app_location_kit/example
+cp android/local.properties.example android/local.properties
+```
+
+**Step 2 — Edit `android/local.properties`**
+
+Replace the placeholder with your real key:
+
+```properties
+MAPS_API_KEY=AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+```
+
+**Step 3 — Run with the same key in the command**
+
+Replace `YOUR_KEY` with the **exact same** value as in `local.properties`:
+
+```bash
+flutter run --dart-define=MAPS_API_KEY=YOUR_KEY
+```
+
+Example:
+
+```bash
+flutter run --dart-define=MAPS_API_KEY=AIzaSyAbCdEfGhIjKlMnOpQrStUvWxYz1234567
+```
+
+**Step 4 — Pick your device** when prompted, then tap **Map picker** on the home screen.
+
+More detail: [example/README.md](example/README.md) and [docs/GOOGLE_MAPS_SETUP.md](docs/GOOGLE_MAPS_SETUP.md).
+
+---
+
+## Host app setup (production)
+
+### Android — location (required for all features)
 
 `android/app/src/main/AndroidManifest.xml`:
 
@@ -33,7 +119,7 @@ dependencies:
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 ```
 
-## iOS setup (host app)
+### iOS — location (required for all features)
 
 `ios/Runner/Info.plist`:
 
@@ -42,7 +128,37 @@ dependencies:
 <string>We use your location for delivery and nearby results.</string>
 ```
 
-## Quick start
+### Google Maps setup (required only for map picker)
+
+**Android** — inside `<application>` in `AndroidManifest.xml`:
+
+```xml
+<meta-data
+    android:name="com.google.android.geo.API_KEY"
+    android:value="YOUR_GOOGLE_MAPS_API_KEY" />
+```
+
+**iOS** — in `Info.plist`:
+
+```xml
+<key>GMSApiKey</key>
+<string>YOUR_GOOGLE_MAPS_API_KEY</string>
+```
+
+**Dart** — pass the key so the package shows a friendly screen instead of crashing:
+
+```dart
+import 'package:in_app_location_kit/maps.dart';
+
+InAppLocationMapScreen(
+  googleMapsApiKey: yourMapsKey, // empty → placeholder UI, no crash
+  onConfirm: (fix) => save(fix),
+);
+```
+
+---
+
+## Quick start (no map)
 
 ```dart
 import 'package:in_app_location_kit/in_app_location_kit.dart';
@@ -60,8 +176,8 @@ InAppLocationPermissionScreen(
   onSuccess: (fix) => context.go('/home'),
   onManualEntry: () => context.go('/address-search'),
   storage: SharedPreferencesLocationStorage(),
-  strings: InAppLocationStrings(permissionTitle: 'Find food near you'),
-  theme: InAppLocationTheme(primaryColor: Colors.orange),
+  strings: const InAppLocationStrings(permissionTitle: 'Find food near you'),
+  theme: const InAppLocationTheme(primaryColor: Colors.orange),
 );
 ```
 
@@ -69,7 +185,7 @@ InAppLocationPermissionScreen(
 
 ```dart
 final kit = InAppLocationKit(
-  config: InAppLocationConfig(
+  config: const InAppLocationConfig(
     gpsStabilizeDelay: Duration(seconds: 2),
     permissionBackend: PermissionBackend.auto,
     reverseGeocode: true,
@@ -91,11 +207,11 @@ final bootstrap = LocationBootstrap(
 final route = await bootstrap.resolve();
 switch (route.action) {
   case LocationBootstrapAction.fetchGps:
-    // show loading screen mode=gps
+    break;
   case LocationBootstrapAction.manualAddressRequired:
-    // force address picker
+    break;
   case LocationBootstrapAction.useCachedAddress:
-    // go home
+    break;
 }
 ```
 
@@ -104,40 +220,57 @@ switch (route.action) {
 ```dart
 import 'package:in_app_location_kit/riverpod.dart';
 
-// ProviderScope child:
 ref.watch(fetchAndSaveLocationProvider);
 ```
 
-## Maps (optional export)
+---
 
-```dart
-import 'package:in_app_location_kit/maps.dart';
+## Troubleshooting
 
-InAppLocationMapScreen(
-  onConfirm: (fix) => save(fix),
-);
-```
+### App crashes on “Map picker” with `API key not found`
 
-Requires Google Maps API key in the **host** app manifest / Info.plist.
+**Cause:** `com.google.android.geo.API_KEY` is missing or empty in `AndroidManifest.xml`.
+
+**Fix:**
+
+1. Add the `<meta-data>` block under `<application>` (see above).
+2. For the **example** app, set `MAPS_API_KEY` in `example/android/local.properties` **and** run:
+   ```bash
+   flutter run --dart-define=MAPS_API_KEY=your_key
+   ```
+3. Rebuild after changing the key (`flutter clean` if the old build is cached).
+
+### Map picker button shows “needs API key” / dialog
+
+**Expected** when you run `flutter run` without `--dart-define=MAPS_API_KEY=...`. Follow [Option 2](#option-2--full-demo-including-map-picker).
+
+### Location works but address is empty
+
+Enable internet for reverse geocoding, or set `reverseGeocode: false` in `InAppLocationConfig`.
+
+### Permission denied forever
+
+User must enable location in system **App settings**. Use `Geolocator.openAppSettings()` or the package’s settings dialog.
+
+---
 
 ## Customization
 
 | Type | Purpose |
 |------|---------|
 | `InAppLocationConfig` | timeouts, accuracy, geocode, permission backend |
-| `InAppLocationStrings` | all copy |
+| `InAppLocationStrings` | all user-visible copy |
 | `InAppLocationTheme` | colors, buttons, illustration, loading |
 | `SettingsDialogBuilder` | replace GPS / settings dialogs |
 | `InAppLocationFlow` | build UI per `LocationFlowStep` |
 | `addressFormatter` | custom address line from `Placemark` |
 
-## Example
+---
 
-```bash
-cd example
-flutter run
-```
+## Contributing
+
+Issues and PRs: [github.com/chaitanya-mhetre/in_app_location_kit](https://github.com/chaitanya-mhetre/in_app_location_kit)
 
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE).

@@ -28,6 +28,10 @@ class InAppLocationStrings {
     this.gpsDisabledSnack = 'Location services are disabled. Please enable GPS.',
     this.mapConfirmButton = 'Confirm location',
     this.mapSearchHint = 'Search area or move the pin',
+    this.mapsApiKeyMissingTitle = 'Google Maps not configured',
+    this.mapsApiKeyMissingBody =
+        'Add your Maps API key to the host app (Android manifest / iOS Info.plist). '
+        'See the package README — Maps section.',
   });
 
   final String permissionTitle;
@@ -52,4 +56,6 @@ class InAppLocationStrings {
   final String gpsDisabledSnack;
   final String mapConfirmButton;
   final String mapSearchHint;
+  final String mapsApiKeyMissingTitle;
+  final String mapsApiKeyMissingBody;
 }

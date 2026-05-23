@@ -1,8 +1,19 @@
 name: in_app_location_kit
-description: Turn on GPS in-app, request location permission, fetch position and address — fully customizable UI and optional storage, maps, and Riverpod bindings.
-version: 0.1.0
-homepage: https://github.com/your-org/in_app_location_kit
-publish_to: 'none'
+description: >-
+  Turn on GPS in-app, request location permission, fetch coordinates and
+  address — customizable UI, storage, maps, and Riverpod helpers.
+version: 0.1.1
+homepage: https://github.com/chaitanya-mhetre/in_app_location_kit
+repository: https://github.com/chaitanya-mhetre/in_app_location_kit
+issue_tracker: https://github.com/chaitanya-mhetre/in_app_location_kit/issues
+documentation: https://github.com/chaitanya-mhetre/in_app_location_kit#readme
+
+topics:
+  - location
+  - geolocator
+  - permission
+  - gps
+  - flutter
 
 environment:
   sdk: ^3.5.0
